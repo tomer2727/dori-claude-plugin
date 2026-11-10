@@ -1,0 +1,7 @@
+{
+  "name": "dori",
+  "version": "1.0.0",
+  "description": "Dori for Claude: connect Claude Code to Dori, check Dori for work on your computer or in the cloud, and do the tasks Dori hands you.",
+  "author": { "name": "Dori" },
+  "keywords": ["dori", "assistant", "wristband", "delegation", "mcp"]
+}

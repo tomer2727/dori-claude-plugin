@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "dori": {
+      "type": "http",
+      "url": "https://home-ai-assistant-production.up.railway.app/mcp"
+    }
+  }
+}

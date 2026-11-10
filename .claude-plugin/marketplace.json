@@ -1,0 +1,13 @@
+{
+  "name": "dori",
+  "owner": { "name": "Dori" },
+  "metadata": { "description": "Dori for Claude: connect your Claude to Dori, the personal assistant on your wrist, in WhatsApp and in the app." },
+  "plugins": [
+    {
+      "name": "dori",
+      "source": "./",
+      "description": "Connects Claude Code to Dori and adds the skills to set it up and to do the tasks Dori hands you.",
+      "version": "1.0.0"
+    }
+  ]
+}
