@@ -12,26 +12,17 @@ Run it in the folder the work belongs to (for code: the repo), so Dori's tasks l
 
 ## Pick one
 
-### A. While this Claude Code session is open (quickest)
+### A. Claude (the usual one)
 
-Tell the user to type:
+Run the `dori-init` skill (the user can also type `/dori-init`): it checks the inbox now, listens every
+5 minutes in this session, and in the Claude desktop app adds one hourly `dori-keeper` scheduled task
+that tries to start listening again after a restart. It runs only while the app is open and the computer is
+awake.
 
-```
-/loop 10m /dori:dori-tasks
-```
+### B. Without the plugin's skills
 
-It checks every 10 minutes until the session ends. Closing the terminal stops it.
-
-### B. A scheduled task in the Claude desktop app (survives restarts)
-
-- If you have a scheduled-task tool (the Claude desktop app's `create_scheduled_task`), create one:
-  - prompt: `Run the dori-tasks skill: check my Dori inbox and do any new delegation.`
-  - folder: the current one;
-  - schedule: the shortest interval it offers (every 15 minutes or hourly).
-- Otherwise give the user the steps: Claude desktop app → Code → Scheduled → New task, the same prompt,
-  this folder, the shortest interval.
-
-It runs only while the desktop app is open and the computer is awake.
+Tell the user to type `/loop 5m Check my Dori inbox and do any new delegation, following Dori's rules.`
+It lasts as long as the session (at most 7 days).
 
 ### C. Codex instead of Claude
 
