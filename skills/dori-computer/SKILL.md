@@ -14,8 +14,8 @@ Run it in the folder the work belongs to (for code: the repo), so Dori's tasks l
 
 ### A. Claude (the usual one)
 
-Run the `dori-init` skill (the user can also type `/dori-init`): it checks the inbox now, listens every
-5 minutes in this session, and in the Claude desktop app adds one hourly `dori-keeper` scheduled task
+Run the `dori-init` skill (the user can also type `/dori-init`): it checks the inbox now, starts a quiet
+background watcher that checks every 20 seconds without model turns, and in the Claude desktop app adds one hourly `dori-keeper` scheduled task
 that tries to start listening again after a restart. It runs only while the app is open and the computer is
 awake.
 
