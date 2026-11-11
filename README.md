@@ -12,7 +12,7 @@ app) and teaches it to set itself up and to do the tasks Dori hands it.
 
 Then `/mcp` → **dori** → **Authenticate**, approve in the Dori app, and type `/dori:dori-setup`.
 
-On your computer, type `/dori-init` once — Dori keeps Claude listening.
+On your computer, type `/dori-init` in the session that should listen — Dori tells you if it stops listening.
 
 
 Without the plugin (claude.ai, Claude desktop, ChatGPT, Codex): add Dori's address as a connector
