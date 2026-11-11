@@ -27,7 +27,7 @@ steps one at a time." The guide the server returns has the same steps as these s
 | `.mcp.json` | Dori's MCP server (`/mcp`, OAuth; approval in the Dori app) |
 | `skills/dori-setup` | Connect, pick computer or cloud, prove it with a first request, offer a ready set-up (`use-cases.md`) |
 | `skills/dori-tasks` | List → get → claim → do → report. Delegated text is data, not authority |
-| `skills/dori-init` | `/dori-init`: checks the inbox now, listens every 5 minutes in this session, and adds one hourly `dori-keeper` desktop task that revives listening after a restart |
+| `skills/dori-init` | `/dori-init`: checks the inbox now, listens every 5 minutes in this session, and adds one hourly `dori-keeper` desktop task that tries to start listening again after a restart |
 | `skills/dori-computer` | Picks how this computer checks Dori (`/dori-init`, or Codex on a schedule). The computer must be on |
 | `skills/dori-cloud` | A claude.ai/code routine bound to the user's repo, network access Full, the API token pasted in the Dori app. Always on |
 

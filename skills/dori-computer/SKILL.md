@@ -16,7 +16,7 @@ Run it in the folder the work belongs to (for code: the repo), so Dori's tasks l
 
 Run the `dori-init` skill (the user can also type `/dori-init`): it checks the inbox now, listens every
 5 minutes in this session, and in the Claude desktop app adds one hourly `dori-keeper` scheduled task
-that starts listening again after a restart. It runs only while the app is open and the computer is
+that tries to start listening again after a restart. It runs only while the app is open and the computer is
 awake.
 
 ### B. Without the plugin's skills
