@@ -21,8 +21,9 @@ each message short.
 ## 2. Listen quietly in this session
 
 Dori's quiet inbox signal lets a tiny shell loop check every 20 seconds without spending a single
-model turn. It wakes you only when a new task waits. Older Dori servers have no
-`loopi_listener_key` tool: then skip to **2d** and use `/loop 5m` instead.
+model turn. It wakes you only when a new task waits. If there is no `loopi_listener_key` tool (an
+older Dori), or it answers `unavailable` (Dori has the signal off), skip 2a–2c and use the
+`/loop 5m` fallback in **2d**.
 
 ### 2a. Get the poll key and save it outside the repo
 
@@ -43,7 +44,8 @@ mkdir -p ~/.dori && cat > ~/.dori/watch.sh <<'EOF'
 # or when the key stops working. No model turn while it waits.
 umask 077
 dir="$HOME/.dori"
-if [ -f "$dir/watch.pid" ] && kill -0 "$(cat "$dir/watch.pid")" 2>/dev/null; then echo "DORI_WATCHER_ALREADY_RUNNING"; exit 0; fi
+pid=$(cat "$dir/watch.pid" 2>/dev/null)
+if [ -n "$pid" ] && kill -0 "$pid" 2>/dev/null && ps -p "$pid" -o command= | grep -q 'watch\.sh'; then echo "DORI_WATCHER_ALREADY_RUNNING"; exit 0; fi
 echo $$ > "$dir/watch.pid"
 trap 'rm -f "$dir/watch.pid"' EXIT
 url=$(cat "$dir/signal-url")
@@ -60,7 +62,10 @@ while :; do
         printf '%s' "$mark" > "$dir/mark"
         echo "DORI_TASK_WAITING pending=$pending"; exit 0
       fi ;;
-    401) echo "DORI_KEY_STOPPED"; exit 0 ;;
+    401)
+      # A key saved in the last 10 minutes that already fails: do not issue another, fall back to the slow loop.
+      if [ -n "$(find "$dir/auth-header" -mmin -10 2>/dev/null)" ]; then echo "DORI_KEY_REFUSED"; else echo "DORI_KEY_STOPPED"; fi
+      exit 0 ;;
     404) echo "DORI_SIGNAL_OFF"; exit 0 ;;
     429) sleep 40 ;;
   esac
@@ -79,7 +84,9 @@ exits; Claude Code tells you when it does. When it exits:
 
 - `DORI_TASK_WAITING`: do the inbox the `dori-tasks` way (`loopi_list_delegations` → get → claim →
   do → `loopi_report_result` once), then start the watcher again exactly as in 2c.
-- `DORI_KEY_STOPPED`: the key expired (7 days) or was replaced. Do 2a again, then 2c.
+- `DORI_KEY_STOPPED`: the key expired (7 days) or was replaced. Do 2a again (once), then 2c.
+- `DORI_KEY_REFUSED`: a key issued minutes ago already fails. Do **not** issue another one: stop the
+  quiet watcher and use the `/loop 5m` fallback in 2d. Tell the user in one line.
 - `DORI_SIGNAL_OFF`: Dori turned the quiet signal off. Use 2d alone.
 - `DORI_WATCHER_ALREADY_RUNNING`: another watcher is already checking. Nothing to do.
 
@@ -92,10 +99,10 @@ Invoke the `loop` skill with exactly this (with the quiet watcher), in case the 
 without a word:
 
 ```
-/loop 30m Check my Dori inbox and do any new delegation, following Dori's rules. Then, if `kill -0 "$(cat ~/.dori/watch.pid 2>/dev/null)"` fails and ~/.dori/watch.sh exists, start `sh ~/.dori/watch.sh` again with run_in_background.
+/loop 30m Check my Dori inbox and do any new delegation, following Dori's rules. Then, if ~/.dori/watch.sh exists and `ps -p "$(cat ~/.dori/watch.pid 2>/dev/null)" -o command= | grep -q 'watch\.sh'` fails, start `sh ~/.dori/watch.sh` again with run_in_background.
 ```
 
-Without `loopi_listener_key` (an older Dori): use `/loop 5m Check my Dori inbox and do any new delegation, following Dori's rules.` instead, and skip 2a–2c.
+Without `loopi_listener_key`, when it answers `unavailable`, or after `DORI_KEY_REFUSED`: use `/loop 5m Check my Dori inbox and do any new delegation, following Dori's rules.` instead, and skip 2a–2c.
 
 If `previousPollAt` was less than 8 minutes ago, another session may already be listening. Start
 this one anyway (the user asked here); two listeners never do a task twice, because a claimed task is
