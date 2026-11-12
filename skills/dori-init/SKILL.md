@@ -1,20 +1,26 @@
 ---
 name: dori-init
-description: Make this Claude listen for Dori's tasks now, and try to keep listening after a restart. Use when the user types /dori-init, or says "Claude stopped listening", "turn Dori back on", "listen to Dori", "start the Dori loop". Checks the Dori inbox once, starts a quiet 20-second watcher in the background of this session (no model turns while idle), a 30-minute safety check, and one "dori-keeper" scheduled task that tries to start it again.
+description: Make this Claude listen for Dori's tasks now. Use when the user types /dori-init, or says "Claude stopped listening", "turn Dori back on", "listen to Dori", "start the Dori loop", or pastes Dori's connect message. Signs in to Dori first when needed (in the same pass), checks the Dori inbox once, starts a quiet 20-second watcher in the background of this session (no model turns while idle) and a 30-minute safety check, then says so in three short lines.
 ---
 
 # Keep Claude listening to Dori
 
 Dori hands the user's "Claude, …" requests to this Claude. Claude takes them only while something
-checks Dori's inbox. This skill does three things, in this order. Speak the user's language and keep
-each message short.
+checks Dori's inbox. This skill does it in one pass, in this order. Speak the user's language and keep
+each message short. When the user must type something, tell them exactly what, one line at a time.
 
 ## 1. Check the inbox once, now
 
 1. Call `loopi_list_delegations`. Remember its `previousPollAt` (this connection's previous call to
    Dori, or null).
-   - No Dori tools, or `401` / not authenticated: tell the user to run `/mcp` → **dori** →
-     **Authenticate** (and approve in the Dori app), then type `/dori-init` again. Stop here.
+   - No Dori tools at all (the plugin was just installed): tell the user one line, "Type /reload-plugins",
+     and wait for them. Then call `loopi_list_delegations` again.
+   - `401` / not authenticated (the dori server waits for sign-in): start the sign-in yourself. If this
+     session has the dori server's `authenticate` tool, call it (it opens Dori's page in the browser).
+     Otherwise tell the user one line: "Type /mcp, choose dori, then Authenticate". Then one line: "Scan the
+     QR code on the page with your phone and tap Approve in Dori." Wait until they say it is done, then call
+     `loopi_list_delegations` again and go on from here, in this same pass. Never ask them to type
+     `/dori-init` again.
 2. Do every open delegation the `dori-tasks` way: `loopi_get_delegation`, `loopi_claim_delegation`
    (`already_claimed`: skip it), do the work, then `loopi_report_result` once.
 
@@ -108,21 +114,22 @@ If `previousPollAt` was less than 8 minutes ago, another session may already be 
 this one anyway (the user asked here); two listeners never do a task twice, because a claimed task is
 skipped by the other.
 
-Then tell the user, plainly:
+If Claude Code asks to approve the background command, tell the user in one line to approve it once.
 
-- **Dori is checked every 20 seconds, quietly.** A new task starts within about half a minute.
-- **This session must stay open.** Closing it, quitting Claude or restarting the computer stops it.
-- **The computer must be awake and the Claude app open.** While the computer sleeps nothing is
-  checked; it resumes by itself when the computer wakes.
-- If Claude Code asks to approve the background command, approve it once.
-- Tip: add Claude to macOS Login Items (System Settings → General → Login Items → **+** → Claude), so
-  it opens after a restart and the keeper can try to start listening again.
+Only once the watcher (or the fallback loop) is running, end with exactly three short lines, nothing more:
 
-## 3. The keeper: tries to start listening again
+- Listening to Dori. A new task starts within about half a minute.
+- It works while this session stays open and the computer is awake.
+- Done, you can go back to Dori now.
 
-Only in the Claude desktop app, when you have its scheduled-tasks tools (`list_scheduled_tasks`,
-`create_scheduled_task`). Not verified end to end yet: never promise the user that listening comes
-back by itself. Say it tries to, and that `/dori-init` always works.
+No list of what stops it, no tips, no questions. Section 3 is not part of this pass.
+
+## 3. The keeper (only when the user asks for it)
+
+Never offer it and never ask about it in the `/dori-init` pass: it is not proven end to end. Do this
+only when the user asks to keep listening after a restart. Only in the Claude desktop app, when you
+have its scheduled-tasks tools (`list_scheduled_tasks`, `create_scheduled_task`). Never promise the
+user that listening comes back by itself. Say it tries to, and that `/dori-init` always works.
 
 1. Call `list_scheduled_tasks`. If a task with `taskId` **dori-keeper** exists, do not create another;
    say it is already there.
@@ -145,7 +152,8 @@ You are Dori's keeper. Use the Dori connector.
 ```
 
 Without the scheduled-tasks tools (the terminal), say that listening lasts as long as this session,
-and that `/dori-init` starts it again.
+and that `/dori-init` starts it again. Auto mode blocks creating the task: then say so in one line and
+stop; do not ask again.
 
 ## Either way it works
 
