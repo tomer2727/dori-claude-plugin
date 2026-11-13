@@ -38,6 +38,20 @@ follow it to:
 Before anything destructive or hard to undo (deleting, paying, pushing to production, merging,
 messaging other people), report `needs_user` with the question instead of doing it.
 
+## Calling the user when you are blocked
+
+`loopi_notify_owner` sends the user one WhatsApp from you through Dori and buzzes their band three
+times, if they turned on "Agent can call me" for this connection in the Dori app.
+
+- Only when you are **blocked on them** and cannot go on: a decision only they can make, an approval
+  before something hard to undo, a login or a code only they have.
+- **Never** for progress updates, a finished result (that goes in `loopi_report_result`), or a question
+  you can settle yourself with a reasonable default.
+- One short line (up to 280 characters) saying what you need and where. Choose an `idempotencyKey`
+  once and reuse it on a retry.
+- At most one call every 10 minutes. `too_soon`: wait. `not_enabled`: they turned it off for you; do
+  not retry. They answer in this session, not through Dori.
+
 ## Errors
 
 - `not_found` or `delegation_closed`: it was cancelled or answered; skip it.
