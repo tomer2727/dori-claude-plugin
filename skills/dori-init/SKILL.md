@@ -12,7 +12,8 @@ each message short. When the user must type something, tell them exactly what, o
 ## 1. Check the inbox once, now
 
 1. Call `loopi_list_delegations`. Remember its `previousPollAt` (this connection's previous call to
-   Dori, or null).
+   Dori, or null) and its `account` (the Dori account this session works for, masked: `•••• 4321`;
+   an older Dori has no such field).
    - No Dori tools at all (the plugin was just installed): tell the user one line, "Type /reload-plugins",
      and wait for them. Then call `loopi_list_delegations` again.
    - `401` / not authenticated (the dori server waits for sign-in): start the sign-in yourself. If this
@@ -118,7 +119,7 @@ If Claude Code asks to approve the background command, tell the user in one line
 
 Only once the watcher (or the fallback loop) is running, end with exactly three short lines, nothing more:
 
-- Listening to Dori. A new task starts within about half a minute.
+- Listening to Dori for account •••• 4321 (the `account` from step 1; without it, just "Listening to Dori"). A new task starts within about half a minute.
 - It works while this session stays open and the computer is awake.
 - Done, you can go back to Dori now.
 
